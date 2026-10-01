@@ -98,12 +98,12 @@ fun MainAppHost(
     val startDestination = if (initialSettings.onboardingComplete) "main_tab/HOME" else "onboarding"
 
     val isTopLevelTab = currentRoute?.startsWith("main_tab/") == true
-    val currentTab = when {
-        currentRoute == "main_tab/HOME" -> MainTab.HOME
-        currentRoute == "main_tab/SUBJECTS" -> MainTab.SUBJECTS
-        currentRoute == "main_tab/PRACTICE" -> MainTab.PRACTICE
-        currentRoute == "main_tab/PLANNER" -> MainTab.PLANNER
-        currentRoute == "main_tab/PROFILE" -> MainTab.PROFILE
+    val currentTab = when (currentRoute) {
+        "main_tab/HOME" -> MainTab.HOME
+        "main_tab/SUBJECTS" -> MainTab.SUBJECTS
+        "main_tab/PRACTICE" -> MainTab.PRACTICE
+        "main_tab/PLANNER" -> MainTab.PLANNER
+        "main_tab/PROFILE" -> MainTab.PROFILE
         else -> null
     }
 
@@ -155,76 +155,84 @@ fun MainAppHost(
             // ----------------------------------------------------
             // Main Top-level Tabs
             // ----------------------------------------------------
-            composable(
-                route = "main_tab/{tabName}",
-                arguments = listOf(navArgument("tabName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val tabName = backStackEntry.arguments?.getString("tabName") ?: "HOME"
-                when (tabName) {
-                    "HOME" -> {
-                        val homeViewModel: HomeViewModel = hiltViewModel()
-                        HomeScreen(
-                            viewModel = homeViewModel,
-                            onNavigateToTopic = { topicId ->
-                                navController.navigate("topic_detail/$topicId")
-                            },
-                            onNavigateToCountdownDetail = {
-                                navController.navigate("countdown_detail")
-                            },
-                            onNavigateToFlashcardsDue = {
-                                navController.navigate("flashcard_review")
-                            },
-                            onNavigateToAddSubject = {
-                                navController.navigate("main_tab/SUBJECTS")
-                            },
-                            onNavigateToPlanner = {
-                                navController.navigate("main_tab/PLANNER")
+            composable("main_tab/HOME") {
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                HomeScreen(
+                    viewModel = homeViewModel,
+                    onNavigateToTopic = { topicId ->
+                        navController.navigate("topic_detail/$topicId")
+                    },
+                    onNavigateToCountdownDetail = {
+                        navController.navigate("countdown_detail")
+                    },
+                    onNavigateToFlashcardsDue = {
+                        navController.navigate("flashcard_review")
+                    },
+                    onNavigateToAddSubject = {
+                        navController.navigate("main_tab/SUBJECTS") {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
-                        )
-                    }
-                    "SUBJECTS" -> {
-                        val subjectsViewModel: SubjectsViewModel = hiltViewModel()
-                        SubjectListScreen(
-                            viewModel = subjectsViewModel,
-                            onNavigateToSubjectDetail = { subjectId ->
-                                navController.navigate("subject_detail/$subjectId")
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToPlanner = {
+                        navController.navigate("main_tab/PLANNER") {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
-                        )
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                    "PRACTICE" -> {
-                        val practiceViewModel: PracticeViewModel = hiltViewModel()
-                        PracticeHomeScreen(
-                            viewModel = practiceViewModel,
-                            onNavigateToQuizSetup = {
-                                navController.navigate("quiz_setup")
-                            },
-                            onNavigateToFlashcardReview = {
-                                navController.navigate("flashcard_review")
-                            },
-                            onNavigateToWeakQuestions = {
-                                navController.navigate("quiz_setup?isWeak=true")
-                            }
-                        )
+                )
+            }
+
+            composable("main_tab/SUBJECTS") {
+                val subjectsViewModel: SubjectsViewModel = hiltViewModel()
+                SubjectListScreen(
+                    viewModel = subjectsViewModel,
+                    onNavigateToSubjectDetail = { subjectId ->
+                        navController.navigate("subject_detail/$subjectId")
                     }
-                    "PLANNER" -> {
-                        val plannerViewModel: PlannerViewModel = hiltViewModel()
-                        PlannerHomeScreen(
-                            viewModel = plannerViewModel,
-                            onNavigateToTopic = { topicId ->
-                                navController.navigate("topic_detail/$topicId")
-                            }
-                        )
+                )
+            }
+
+            composable("main_tab/PRACTICE") {
+                val practiceViewModel: PracticeViewModel = hiltViewModel()
+                PracticeHomeScreen(
+                    viewModel = practiceViewModel,
+                    onNavigateToQuizSetup = {
+                        navController.navigate("quiz_setup")
+                    },
+                    onNavigateToFlashcardReview = {
+                        navController.navigate("flashcard_review")
+                    },
+                    onNavigateToWeakQuestions = {
+                        navController.navigate("quiz_setup?isWeak=true")
                     }
-                    "PROFILE" -> {
-                        val profileViewModel: ProfileViewModel = hiltViewModel()
-                        ProgressDashboardScreen(
-                            viewModel = profileViewModel,
-                            onBack = {
-                                navController.navigate("settings")
-                            }
-                        )
+                )
+            }
+
+            composable("main_tab/PLANNER") {
+                val plannerViewModel: PlannerViewModel = hiltViewModel()
+                PlannerHomeScreen(
+                    viewModel = plannerViewModel,
+                    onNavigateToTopic = { topicId ->
+                        navController.navigate("topic_detail/$topicId")
                     }
-                }
+                )
+            }
+
+            composable("main_tab/PROFILE") {
+                val profileViewModel: ProfileViewModel = hiltViewModel()
+                ProgressDashboardScreen(
+                    viewModel = profileViewModel,
+                    onBack = {
+                        navController.navigate("settings")
+                    }
+                )
             }
 
             // ----------------------------------------------------
