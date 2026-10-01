@@ -252,6 +252,22 @@ object LineIcons {
     }
 
     @Composable
+    fun Menu(
+        modifier: Modifier = Modifier,
+        size: Dp = 24.dp,
+        tint: Color = StudyOfflineTheme.colors.textPrimary
+    ) {
+        Canvas(modifier = modifier.size(size)) {
+            val stroke = 1.8.dp.toPx()
+            val w = this.size.width
+            val h = this.size.height
+            drawLine(tint, Offset(w * 0.16f, h * 0.28f), Offset(w * 0.84f, h * 0.28f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(tint, Offset(w * 0.16f, h * 0.50f), Offset(w * 0.84f, h * 0.50f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(tint, Offset(w * 0.16f, h * 0.72f), Offset(w * 0.84f, h * 0.72f), strokeWidth = stroke, cap = StrokeCap.Round)
+        }
+    }
+
+    @Composable
     fun ArrowLeft(
         modifier: Modifier = Modifier,
         size: Dp = 24.dp,

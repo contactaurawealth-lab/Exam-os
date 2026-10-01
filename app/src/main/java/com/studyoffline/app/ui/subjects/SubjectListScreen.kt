@@ -23,7 +23,8 @@ import com.studyoffline.app.ui.theme.StudyOfflineTheme
 @Composable
 fun SubjectListScreen(
     viewModel: SubjectsViewModel,
-    onNavigateToSubjectDetail: (Long) -> Unit
+    onNavigateToSubjectDetail: (Long) -> Unit,
+    onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -39,6 +40,7 @@ fun SubjectListScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             StudyTopBar(
                 title = "Subjects",
+                onMenuClick = onMenuClick,
                 actions = {
                     Box(
                         modifier = Modifier

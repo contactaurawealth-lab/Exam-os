@@ -46,7 +46,8 @@ enum class PlannerSubTab {
 @Composable
 fun PlannerHomeScreen(
     viewModel: PlannerViewModel,
-    onNavigateToTopic: (Long) -> Unit
+    onNavigateToTopic: (Long) -> Unit,
+    onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -132,7 +133,10 @@ fun PlannerHomeScreen(
             .fillMaxSize()
             .background(colors.background)
     ) {
-        StudyTopBar(title = "Planner")
+        StudyTopBar(
+            title = "Planner",
+            onMenuClick = onMenuClick
+        )
 
         // Sub-tab selector
         Row(
@@ -435,7 +439,7 @@ private fun CalendarView(
 }
 
 @Composable
-private fun PomodoroView(
+fun PomodoroView(
     state: PlannerUiState,
     onSelectMode: (PomodoroMode) -> Unit,
     onToggleRunning: () -> Unit,

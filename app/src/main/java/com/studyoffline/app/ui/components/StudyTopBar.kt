@@ -29,6 +29,7 @@ fun StudyTopBar(
     title: String,
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
+    onMenuClick: (() -> Unit)? = null,
     actions: @Composable (RowScope.() -> Unit)? = null
 ) {
     val colors = StudyOfflineTheme.colors
@@ -56,6 +57,17 @@ fun StudyTopBar(
                     contentAlignment = Alignment.Center
                 ) {
                     LineIcons.ArrowLeft(size = 24.dp, tint = colors.textPrimary)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+            } else if (onMenuClick != null) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onMenuClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LineIcons.Menu(size = 24.dp, tint = colors.textPrimary)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
             }

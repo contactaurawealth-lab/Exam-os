@@ -29,7 +29,10 @@ fun HomeScreen(
     onNavigateToCountdownDetail: () -> Unit,
     onNavigateToFlashcardsDue: () -> Unit,
     onNavigateToAddSubject: () -> Unit,
-    onNavigateToPlanner: () -> Unit = {}
+    onNavigateToPlanner: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
+    onNavigateToTimer: () -> Unit = {},
+    onNavigateToBlocker: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -43,23 +46,38 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // Top row: Greeting + Streak counter
+        // Top row: Menu button + Greeting + Streak counter
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = state.greeting,
-                    style = typography.subheading,
-                    color = colors.textSecondary
-                )
-                Text(
-                    text = "Ready to study?",
-                    style = typography.heading,
-                    color = colors.textPrimary
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onMenuClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LineIcons.Menu(size = 24.dp, tint = colors.textPrimary)
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(
+                        text = state.greeting,
+                        style = typography.subheading,
+                        color = colors.textSecondary
+                    )
+                    Text(
+                        text = "Ready to study?",
+                        style = typography.heading,
+                        color = colors.textPrimary
+                    )
+                }
             }
 
             // Streak Pill
@@ -195,6 +213,78 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
         }
+
+        // Focus Tools Quick Access (Timer & Blocker)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Focus Timer Card
+            StudyCard(
+                modifier = Modifier.weight(1f),
+                onClick = onNavigateToTimer,
+                backgroundColor = colors.surfaceMuted,
+                contentPadding = 12.dp
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(colors.accent.copy(alpha = 0.15f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LineIcons.Timer(size = 18.dp, tint = colors.accent)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Focus Timer",
+                            style = typography.bodyStrong.copy(fontSize = 13.sp),
+                            color = colors.textPrimary
+                        )
+                        Text(
+                            text = "Pomodoro",
+                            style = typography.caption.copy(fontSize = 11.sp),
+                            color = colors.textSecondary
+                        )
+                    }
+                }
+            }
+
+            // App Blocker Card
+            StudyCard(
+                modifier = Modifier.weight(1f),
+                onClick = onNavigateToBlocker,
+                backgroundColor = colors.surfaceMuted,
+                contentPadding = 12.dp
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(colors.warning.copy(alpha = 0.15f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LineIcons.Lock(size = 18.dp, tint = colors.warning)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "App Blocker",
+                            style = typography.bodyStrong.copy(fontSize = 13.sp),
+                            color = colors.textPrimary
+                        )
+                        Text(
+                            text = "5-min lock",
+                            style = typography.caption.copy(fontSize = 11.sp),
+                            color = colors.textSecondary
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Today's Plan section (§7.3)
         Row(
