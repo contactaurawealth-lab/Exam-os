@@ -20,7 +20,8 @@ fun PracticeHomeScreen(
     viewModel: PracticeViewModel,
     onNavigateToQuizSetup: () -> Unit,
     onNavigateToFlashcardReview: () -> Unit,
-    onNavigateToWeakQuestions: () -> Unit
+    onNavigateToWeakQuestions: () -> Unit,
+    onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.homeUiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -31,7 +32,10 @@ fun PracticeHomeScreen(
             .fillMaxSize()
             .background(colors.background)
     ) {
-        StudyTopBar(title = "Practice")
+        StudyTopBar(
+            title = "Practice",
+            onMenuClick = onMenuClick
+        )
 
         Column(
             modifier = Modifier

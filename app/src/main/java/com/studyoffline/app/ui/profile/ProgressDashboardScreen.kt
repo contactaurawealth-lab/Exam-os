@@ -28,7 +28,8 @@ import java.time.LocalDate
 @Composable
 fun ProgressDashboardScreen(
     viewModel: ProfileViewModel,
-    onBack: () -> Unit
+    onBack: (() -> Unit)? = null,
+    onMenuClick: (() -> Unit)? = null
 ) {
     val state by viewModel.progressDashboardState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -40,8 +41,9 @@ fun ProgressDashboardScreen(
             .background(colors.background)
     ) {
         StudyTopBar(
-            title = "Progress Dashboard",
-            onBackClick = onBack
+            title = "Progress & Stats",
+            onBackClick = onBack,
+            onMenuClick = onMenuClick
         )
 
         Column(

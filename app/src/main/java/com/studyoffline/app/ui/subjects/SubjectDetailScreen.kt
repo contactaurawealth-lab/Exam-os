@@ -112,22 +112,29 @@ fun SubjectDetailScreen(
 
             // Topics List
             if (topics.isEmpty()) {
-                StudyEmptyState(
-                    title = "No topics added yet",
-                    description = "Break this subject down into study topics, notes, and flashcards.",
-                    icon = {
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .background(colors.surfaceMuted, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LineIcons.Book(size = 32.dp, tint = colors.accent)
-                        }
-                    },
-                    actionButtonText = "Add Topic",
-                    onActionClick = { showAddTopicSheet = true }
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StudyEmptyState(
+                        title = "No topics added yet",
+                        description = "Break this subject down into study topics, notes, and flashcards.",
+                        icon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .background(colors.surfaceMuted, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                LineIcons.Book(size = 32.dp, tint = colors.accent)
+                            }
+                        },
+                        actionButtonText = "Add Topic",
+                        onActionClick = { showAddTopicSheet = true }
+                    )
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),

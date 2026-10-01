@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StudyOffline</string>
+    <string name="accessibility_service_description">Exam-OS uses Accessibility Service to detect when blocked distracting apps are opened during study sessions and enforce your focus lock.</string>
 </resources>

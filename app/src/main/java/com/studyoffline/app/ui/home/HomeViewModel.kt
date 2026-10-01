@@ -21,6 +21,8 @@ data class HomeUiState(
     val todayPlanItems: List<TodayPlanItem> = emptyList(),
     val dueFlashcardCount: Int = 0,
     val subjectCount: Int = 0,
+    val totalTopicsCount: Int = 0,
+    val completedTopicsCount: Int = 0,
     val isLoading: Boolean = true
 )
 
@@ -30,22 +32,30 @@ class HomeViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
+    private val subjectsAndTopicsFlow = combine(
+        studyRepository.getAllSubjects(),
+        studyRepository.getAllTopics()
+    ) { subjects, topics -> Pair(subjects, topics) }
+
     val uiState: StateFlow<HomeUiState> = combine(
         preferencesRepository.userSettingsFlow,
         studyRepository.getStreakInfo(),
         studyRepository.getTodayPlanItems(limit = 3),
         studyRepository.getDueFlashcardCount(),
-        studyRepository.getAllSubjects()
-    ) { settings, streak, plan, dueCount, subjects ->
-        val hour = java.time.LocalTime.now().hour
+        subjectsAndTopicsFlow
+    ) { settings, streak, plan, dueCount, (subjects, topics) ->
+        val calendar = java.util.Calendar.getInstance()
+        val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
         val greeting = when (hour) {
             in 5..11 -> "Good morning"
             in 12..16 -> "Good afternoon"
             in 17..21 -> "Good evening"
-            else -> "Good night"
+            else -> "Late night study"
         }
 
         val daysRemaining = CountdownCalculator.calculateDaysRemaining(settings.examGoalDate)
+        val totalTopics = topics.size
+        val completedTopics = topics.count { it.isCompleted }
 
         HomeUiState(
             greeting = greeting,
@@ -55,6 +65,8 @@ class HomeViewModel @Inject constructor(
             todayPlanItems = plan,
             dueFlashcardCount = dueCount,
             subjectCount = subjects.size,
+            totalTopicsCount = totalTopics,
+            completedTopicsCount = completedTopics,
             isLoading = false
         )
     }.stateIn(

@@ -28,7 +28,11 @@ fun HomeScreen(
     onNavigateToTopic: (Long) -> Unit,
     onNavigateToCountdownDetail: () -> Unit,
     onNavigateToFlashcardsDue: () -> Unit,
-    onNavigateToAddSubject: () -> Unit
+    onNavigateToAddSubject: () -> Unit,
+    onNavigateToPlanner: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
+    onNavigateToTimer: () -> Unit = {},
+    onNavigateToBlocker: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -42,23 +46,38 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // Top row: Greeting + Streak counter
+        // Top row: Menu button + Greeting + Streak counter
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = state.greeting,
-                    style = typography.subheading,
-                    color = colors.textSecondary
-                )
-                Text(
-                    text = "Ready to study?",
-                    style = typography.heading,
-                    color = colors.textPrimary
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onMenuClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LineIcons.Menu(size = 24.dp, tint = colors.textPrimary)
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(
+                        text = state.greeting,
+                        style = typography.subheading,
+                        color = colors.textSecondary
+                    )
+                    Text(
+                        text = "Ready to study?",
+                        style = typography.heading,
+                        color = colors.textPrimary
+                    )
+                }
             }
 
             // Streak Pill
@@ -195,6 +214,78 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
+        // Focus Tools Quick Access (Timer & Blocker)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Focus Timer Card
+            StudyCard(
+                modifier = Modifier.weight(1f),
+                onClick = onNavigateToTimer,
+                backgroundColor = colors.surfaceMuted,
+                contentPadding = 12.dp
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(colors.accent.copy(alpha = 0.15f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LineIcons.Timer(size = 18.dp, tint = colors.accent)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Focus Timer",
+                            style = typography.bodyStrong.copy(fontSize = 13.sp),
+                            color = colors.textPrimary
+                        )
+                        Text(
+                            text = "Pomodoro",
+                            style = typography.caption.copy(fontSize = 11.sp),
+                            color = colors.textSecondary
+                        )
+                    }
+                }
+            }
+
+            // App Blocker Card
+            StudyCard(
+                modifier = Modifier.weight(1f),
+                onClick = onNavigateToBlocker,
+                backgroundColor = colors.surfaceMuted,
+                contentPadding = 12.dp
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(colors.warning.copy(alpha = 0.15f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LineIcons.Lock(size = 18.dp, tint = colors.warning)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "App Blocker",
+                            style = typography.bodyStrong.copy(fontSize = 13.sp),
+                            color = colors.textPrimary
+                        )
+                        Text(
+                            text = "5-min lock",
+                            style = typography.caption.copy(fontSize = 11.sp),
+                            color = colors.textSecondary
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         // Today's Plan section (§7.3)
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -217,17 +308,60 @@ fun HomeScreen(
 
         if (state.todayPlanItems.isEmpty()) {
             StudyCard(modifier = Modifier.fillMaxWidth()) {
+                val isNewUser = state.subjectCount == 0
+                val hasNoTopics = state.totalTopicsCount == 0
+                val isActuallyCaughtUp = state.completedTopicsCount > 0 && state.streakInfo.currentStreak > 0
+
+                val emptyTitle = when {
+                    isNewUser -> "Start your study plan"
+                    hasNoTopics -> "Add topics to study"
+                    isActuallyCaughtUp -> "You're all caught up for today! 🎉"
+                    else -> "No topics scheduled for today"
+                }
+
+                val emptyDescription = when {
+                    isNewUser -> "Create your first subject and topics to start scheduling revision."
+                    hasNoTopics -> "Add revision topics under your subjects to track them here."
+                    isActuallyCaughtUp -> "Great job completing your revision goals! Head to Planner if you'd like to schedule extra sessions."
+                    else -> "Plan your daily study sessions in the Planner to build your revision streak."
+                }
+
                 Text(
-                    text = "No topics scheduled for today.",
-                    style = typography.body,
-                    color = colors.textSecondary
+                    text = emptyTitle,
+                    style = typography.subheading,
+                    color = colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "You're all caught up! Head to Planner to schedule more.",
+                    text = emptyDescription,
                     style = typography.caption,
                     color = colors.textSecondary
                 )
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (isNewUser || hasNoTopics) {
+                        StudyPrimaryButton(
+                            text = if (isNewUser) "Add Subject" else "View Subjects",
+                            onClick = onNavigateToAddSubject,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        StudyPrimaryButton(
+                            text = "Open Planner",
+                            onClick = onNavigateToPlanner,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StudySecondaryButton(
+                            text = "View Subjects",
+                            onClick = onNavigateToAddSubject,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

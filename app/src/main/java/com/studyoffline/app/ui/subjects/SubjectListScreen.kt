@@ -1,6 +1,7 @@
 package com.studyoffline.app.ui.subjects
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +23,8 @@ import com.studyoffline.app.ui.theme.StudyOfflineTheme
 @Composable
 fun SubjectListScreen(
     viewModel: SubjectsViewModel,
-    onNavigateToSubjectDetail: (Long) -> Unit
+    onNavigateToSubjectDetail: (Long) -> Unit,
+    onMenuClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -37,30 +39,50 @@ fun SubjectListScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             StudyTopBar(
-                title = "Subjects"
+                title = "Subjects",
+                onMenuClick = onMenuClick,
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = { showAddSubjectSheet = true })
+                            .semantics { contentDescription = "Add subject" },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LineIcons.Plus(size = 24.dp, tint = colors.accent)
+                    }
+                }
             )
 
             if (state.subjectsWithProgress.isEmpty() && !state.isLoading) {
-                StudyEmptyState(
-                    title = "No subjects yet",
-                    description = "Organize your study goals by adding your first subject.",
-                    icon = {
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .background(colors.surfaceMuted, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LineIcons.Book(size = 32.dp, tint = colors.accent)
-                        }
-                    },
-                    actionButtonText = "Add Subject",
-                    onActionClick = { showAddSubjectSheet = true }
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StudyEmptyState(
+                        title = "No subjects yet",
+                        description = "Organize your study goals by adding your first subject.",
+                        icon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .background(colors.surfaceMuted, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                LineIcons.Book(size = 32.dp, tint = colors.accent)
+                            }
+                        },
+                        actionButtonText = "Add Subject",
+                        onActionClick = { showAddSubjectSheet = true }
+                    )
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 88.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.subjectsWithProgress, key = { it.subject.id }) { item ->
