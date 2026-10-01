@@ -80,7 +80,7 @@ fun StudyTextField(
                 .padding(horizontal = 16.dp, vertical = if (singleLine) 14.dp else 12.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(modifier = Modifier.weight(1f)) {

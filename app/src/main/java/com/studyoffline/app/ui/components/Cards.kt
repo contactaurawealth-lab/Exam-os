@@ -35,11 +35,7 @@ fun StudyCard(
                 if (onClick != null) {
                     Modifier
                         .clip(shape)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onClick
-                        )
+                        .clickable(onClick = onClick)
                 } else {
                     Modifier
                 }

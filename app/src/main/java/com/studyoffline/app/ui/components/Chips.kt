@@ -44,11 +44,7 @@ fun StudyChip(
         modifier = modifier
             .defaultMinSize(minHeight = 36.dp)
             .clip(RoundedCornerShape(20.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            ),
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         color = backgroundColor,
         border = border

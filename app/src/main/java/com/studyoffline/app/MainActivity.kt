@@ -7,7 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -44,17 +46,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val settings by preferencesRepository.userSettingsFlow.collectAsState(initial = UserSettings())
+            val settingsState by preferencesRepository.userSettingsFlow.collectAsState(initial = null)
+            val settings = settingsState
 
-            StudyOfflineTheme(
-                themeMode = settings.themeMode,
-                accentColorHex = settings.accentColorHex
-            ) {
-                MainAppHost(
-                    initialSettings = settings,
-                    initialIntent = intent,
-                    preferencesRepository = preferencesRepository
-                )
+            if (settings != null) {
+                StudyOfflineTheme(
+                    themeMode = settings.themeMode,
+                    accentColorHex = settings.accentColorHex
+                ) {
+                    MainAppHost(
+                        initialSettings = settings,
+                        initialIntent = intent,
+                        preferencesRepository = preferencesRepository
+                    )
+                }
+            } else {
+                Box(modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -101,6 +108,7 @@ fun MainAppHost(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (isTopLevelTab && currentTab != null) {
                 StudyBottomBar(

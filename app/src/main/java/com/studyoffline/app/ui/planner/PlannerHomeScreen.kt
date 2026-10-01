@@ -67,21 +67,59 @@ fun PlannerHomeScreen(
     }
 
     // Sync Foreground Service with Pomodoro running state
-    LaunchedEffect(state.isPomodoroRunning, state.pomodoroSecondsRemaining) {
+    LaunchedEffect(state.isPomodoroRunning) {
         val serviceIntent = Intent(context, PomodoroForegroundService::class.java).apply {
             action = if (state.isPomodoroRunning) {
                 PomodoroForegroundService.ACTION_START
+            } else if (state.pomodoroSecondsRemaining == 0) {
+                PomodoroForegroundService.ACTION_STOP
             } else {
                 PomodoroForegroundService.ACTION_PAUSE
             }
             putExtra(PomodoroForegroundService.EXTRA_SECONDS_REMAINING, state.pomodoroSecondsRemaining)
             putExtra(PomodoroForegroundService.EXTRA_MODE_NAME, state.pomodoroMode.title)
         }
-        if (state.isPomodoroRunning) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
+        try {
+            if (state.isPomodoroRunning) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent)
+                } else {
+                    context.startService(serviceIntent)
+                }
             } else {
                 context.startService(serviceIntent)
+            }
+        } catch (e: Exception) {
+            // Guard against ForegroundServiceStartNotAllowedException on Android 12+
+        }
+    }
+
+    // Periodically update notification without repeatedly calling startForegroundService
+    LaunchedEffect(state.isPomodoroRunning, state.pomodoroSecondsRemaining / 60) {
+        if (state.isPomodoroRunning) {
+            val serviceIntent = Intent(context, PomodoroForegroundService::class.java).apply {
+                action = PomodoroForegroundService.ACTION_START
+                putExtra(PomodoroForegroundService.EXTRA_SECONDS_REMAINING, state.pomodoroSecondsRemaining)
+                putExtra(PomodoroForegroundService.EXTRA_MODE_NAME, state.pomodoroMode.title)
+            }
+            try {
+                context.startService(serviceIntent)
+            } catch (e: Exception) {
+                // Safe ignore when backgrounded
+            }
+        }
+    }
+
+    // Remove notification when timer completes
+    LaunchedEffect(state.pomodoroSecondsRemaining) {
+        if (state.pomodoroSecondsRemaining == 0 && !state.isPomodoroRunning) {
+            val serviceIntent = Intent(context, PomodoroForegroundService::class.java).apply {
+                action = PomodoroForegroundService.ACTION_STOP
+            }
+            try {
+                context.startService(serviceIntent)
+            } catch (e: Exception) {
+                // Safe ignore
             }
         }
     }

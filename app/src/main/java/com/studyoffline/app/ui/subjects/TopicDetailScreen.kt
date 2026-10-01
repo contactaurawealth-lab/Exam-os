@@ -37,7 +37,7 @@ fun TopicDetailScreen(
     onStartFlashcardReview: (topicId: Long) -> Unit,
     onStartTopicQuiz: (topicId: Long) -> Unit
 ) {
-    val topicState by viewModel.getTopicDetail(topicId).collectAsState(initial = TopicDetailUiState())
+    val topicState by remember(topicId) { viewModel.getTopicDetail(topicId) }.collectAsState(initial = TopicDetailUiState())
     val colors = StudyOfflineTheme.colors
     val typography = StudyOfflineTheme.typography
 
@@ -70,7 +70,7 @@ fun TopicDetailScreen(
             actions = {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .clickable { showEditTopicSheet = true },
                     contentAlignment = Alignment.Center
@@ -80,7 +80,7 @@ fun TopicDetailScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .clickable { showDeleteConfirmDialog = true },
                     contentAlignment = Alignment.Center

@@ -27,7 +27,8 @@ data class QuizSessionState(
     val isAnswerChecked: Boolean = false,
     val userAnswers: Map<Int, Int> = emptyMap(), // questionIndex -> selectedOptionIndex
     val isCompleted: Boolean = false,
-    val startTime: Long = System.currentTimeMillis()
+    val startTime: Long = System.currentTimeMillis(),
+    val isLoading: Boolean = false
 )
 
 data class FlashcardReviewState(
@@ -36,7 +37,8 @@ data class FlashcardReviewState(
     val isFlipped: Boolean = false,
     val reviewedCount: Int = 0,
     val isCompleted: Boolean = false,
-    val startTime: Long = System.currentTimeMillis()
+    val startTime: Long = System.currentTimeMillis(),
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -73,6 +75,7 @@ class PracticeViewModel @Inject constructor(
     // Quiz Setup & Session
     // ----------------------------------------------------
     fun startQuiz(subjectId: Long?, count: Int, weakOnly: Boolean = false) {
+        _quizState.value = QuizSessionState(isLoading = true)
         viewModelScope.launch {
             val questions = if (weakOnly) {
                 studyRepository.getWeakQuestionsList()
@@ -92,7 +95,8 @@ class PracticeViewModel @Inject constructor(
                 isAnswerChecked = false,
                 userAnswers = emptyMap(),
                 isCompleted = false,
-                startTime = System.currentTimeMillis()
+                startTime = System.currentTimeMillis(),
+                isLoading = false
             )
         }
     }
@@ -142,8 +146,16 @@ class PracticeViewModel @Inject constructor(
     }
 
     fun toggleWeakStatus(questionId: Long, currentWeak: Boolean) {
+        val newWeak = !currentWeak
+        _quizState.update { state ->
+            state.copy(
+                questions = state.questions.map { q ->
+                    if (q.id == questionId) q.copy(isWeak = newWeak) else q
+                }
+            )
+        }
         viewModelScope.launch {
-            studyRepository.setQuestionWeakStatus(questionId, !currentWeak)
+            studyRepository.setQuestionWeakStatus(questionId, newWeak)
         }
     }
 
@@ -151,6 +163,7 @@ class PracticeViewModel @Inject constructor(
     // Flashcard Review (SM-2)
     // ----------------------------------------------------
     fun startFlashcardReview(topicId: Long? = null) {
+        _flashcardState.value = FlashcardReviewState(isLoading = true)
         viewModelScope.launch {
             val cards = if (topicId != null) {
                 studyRepository.getFlashcardsDueByTopic(topicId).first()
@@ -164,7 +177,8 @@ class PracticeViewModel @Inject constructor(
                 isFlipped = false,
                 reviewedCount = 0,
                 isCompleted = false,
-                startTime = System.currentTimeMillis()
+                startTime = System.currentTimeMillis(),
+                isLoading = false
             )
         }
     }

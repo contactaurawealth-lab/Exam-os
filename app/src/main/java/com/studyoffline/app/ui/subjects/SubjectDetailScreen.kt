@@ -58,7 +58,7 @@ fun SubjectDetailScreen(
                 actions = {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .clickable { showEditSubjectSheet = true },
                         contentAlignment = Alignment.Center
@@ -68,7 +68,7 @@ fun SubjectDetailScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .clickable { showDeleteConfirmDialog = true },
                         contentAlignment = Alignment.Center
