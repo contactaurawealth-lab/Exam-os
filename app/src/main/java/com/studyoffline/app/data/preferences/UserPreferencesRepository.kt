@@ -28,7 +28,10 @@ data class UserSettings(
     val countdownMilestonesEnabled: Boolean = true,
     val pomodoroAlertsEnabled: Boolean = true,
     val ongoingSessionNotificationEnabled: Boolean = true,
-    val persistentCountdownNotificationEnabled: Boolean = false
+    val persistentCountdownNotificationEnabled: Boolean = false,
+    val appBlockerEnabled: Boolean = false,
+    val blockedPackages: Set<String> = emptySet(),
+    val appBlockerPasscode: String = ""
 )
 
 @Singleton
@@ -50,6 +53,9 @@ class UserPreferencesRepository @Inject constructor(
         val POMODORO_ALERTS_ENABLED = booleanPreferencesKey("pomodoro_alerts_enabled")
         val ONGOING_SESSION_NOTIFICATION_ENABLED = booleanPreferencesKey("ongoing_session_notification_enabled")
         val PERSISTENT_COUNTDOWN_NOTIFICATION_ENABLED = booleanPreferencesKey("persistent_countdown_notification_enabled")
+        val APP_BLOCKER_ENABLED = booleanPreferencesKey("app_blocker_enabled")
+        val BLOCKED_PACKAGES = stringSetPreferencesKey("blocked_packages")
+        val APP_BLOCKER_PASSCODE = stringPreferencesKey("app_blocker_passcode")
     }
 
     val userSettingsFlow: Flow<UserSettings> = context.dataStore.data
@@ -84,7 +90,10 @@ class UserPreferencesRepository @Inject constructor(
             countdownMilestonesEnabled = preferences[PreferencesKeys.COUNTDOWN_MILESTONES_ENABLED] ?: true,
             pomodoroAlertsEnabled = preferences[PreferencesKeys.POMODORO_ALERTS_ENABLED] ?: true,
             ongoingSessionNotificationEnabled = preferences[PreferencesKeys.ONGOING_SESSION_NOTIFICATION_ENABLED] ?: true,
-            persistentCountdownNotificationEnabled = preferences[PreferencesKeys.PERSISTENT_COUNTDOWN_NOTIFICATION_ENABLED] ?: false
+            persistentCountdownNotificationEnabled = preferences[PreferencesKeys.PERSISTENT_COUNTDOWN_NOTIFICATION_ENABLED] ?: false,
+            appBlockerEnabled = preferences[PreferencesKeys.APP_BLOCKER_ENABLED] ?: false,
+            blockedPackages = preferences[PreferencesKeys.BLOCKED_PACKAGES] ?: emptySet(),
+            appBlockerPasscode = preferences[PreferencesKeys.APP_BLOCKER_PASSCODE] ?: ""
         )
     }
 
@@ -145,6 +154,29 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setPersistentCountdownNotificationEnabled(enabled: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.PERSISTENT_COUNTDOWN_NOTIFICATION_ENABLED] = enabled }
+    }
+
+    suspend fun setAppBlockerEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.APP_BLOCKER_ENABLED] = enabled }
+    }
+
+    suspend fun setBlockedPackages(packages: Set<String>) {
+        context.dataStore.edit { it[PreferencesKeys.BLOCKED_PACKAGES] = packages }
+    }
+
+    suspend fun toggleBlockedPackage(packageName: String) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[PreferencesKeys.BLOCKED_PACKAGES] ?: emptySet()
+            if (current.contains(packageName)) {
+                prefs[PreferencesKeys.BLOCKED_PACKAGES] = current - packageName
+            } else {
+                prefs[PreferencesKeys.BLOCKED_PACKAGES] = current + packageName
+            }
+        }
+    }
+
+    suspend fun setAppBlockerPasscode(passcode: String) {
+        context.dataStore.edit { it[PreferencesKeys.APP_BLOCKER_PASSCODE] = passcode.trim() }
     }
 
     suspend fun clear() {

@@ -176,6 +176,9 @@ fun MainAppHost(
                             },
                             onNavigateToAddSubject = {
                                 navController.navigate("main_tab/SUBJECTS")
+                            },
+                            onNavigateToPlanner = {
+                                navController.navigate("main_tab/PLANNER")
                             }
                         )
                     }

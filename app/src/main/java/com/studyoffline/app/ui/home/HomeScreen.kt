@@ -28,7 +28,8 @@ fun HomeScreen(
     onNavigateToTopic: (Long) -> Unit,
     onNavigateToCountdownDetail: () -> Unit,
     onNavigateToFlashcardsDue: () -> Unit,
-    onNavigateToAddSubject: () -> Unit
+    onNavigateToAddSubject: () -> Unit,
+    onNavigateToPlanner: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = StudyOfflineTheme.colors
@@ -217,17 +218,60 @@ fun HomeScreen(
 
         if (state.todayPlanItems.isEmpty()) {
             StudyCard(modifier = Modifier.fillMaxWidth()) {
+                val isNewUser = state.subjectCount == 0
+                val hasNoTopics = state.totalTopicsCount == 0
+                val isActuallyCaughtUp = state.completedTopicsCount > 0 && state.streakInfo.currentStreak > 0
+
+                val emptyTitle = when {
+                    isNewUser -> "Start your study plan"
+                    hasNoTopics -> "Add topics to study"
+                    isActuallyCaughtUp -> "You're all caught up for today! 🎉"
+                    else -> "No topics scheduled for today"
+                }
+
+                val emptyDescription = when {
+                    isNewUser -> "Create your first subject and topics to start scheduling revision."
+                    hasNoTopics -> "Add revision topics under your subjects to track them here."
+                    isActuallyCaughtUp -> "Great job completing your revision goals! Head to Planner if you'd like to schedule extra sessions."
+                    else -> "Plan your daily study sessions in the Planner to build your revision streak."
+                }
+
                 Text(
-                    text = "No topics scheduled for today.",
-                    style = typography.body,
-                    color = colors.textSecondary
+                    text = emptyTitle,
+                    style = typography.subheading,
+                    color = colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "You're all caught up! Head to Planner to schedule more.",
+                    text = emptyDescription,
                     style = typography.caption,
                     color = colors.textSecondary
                 )
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (isNewUser || hasNoTopics) {
+                        StudyPrimaryButton(
+                            text = if (isNewUser) "Add Subject" else "View Subjects",
+                            onClick = onNavigateToAddSubject,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        StudyPrimaryButton(
+                            text = "Open Planner",
+                            onClick = onNavigateToPlanner,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StudySecondaryButton(
+                            text = "View Subjects",
+                            onClick = onNavigateToAddSubject,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

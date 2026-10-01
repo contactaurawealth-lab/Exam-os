@@ -434,4 +434,65 @@ object LineIcons {
             drawPath(can, tint, style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
     }
+
+    @Composable
+    fun Lock(
+        modifier: Modifier = Modifier,
+        size: Dp = 24.dp,
+        tint: Color = StudyOfflineTheme.colors.textPrimary
+    ) {
+        Canvas(modifier = modifier.size(size)) {
+            val stroke = 1.5.dp.toPx()
+            val w = this.size.width
+            val h = this.size.height
+
+            // Body
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(w * 0.2f, h * 0.44f),
+                size = Size(w * 0.6f, h * 0.46f),
+                cornerRadius = CornerRadius(w * 0.08f, h * 0.08f),
+                style = Stroke(width = stroke)
+            )
+
+            // Shackle
+            val shackle = Path().apply {
+                moveTo(w * 0.32f, h * 0.44f)
+                lineTo(w * 0.32f, h * 0.28f)
+                cubicTo(w * 0.32f, h * 0.16f, w * 0.68f, h * 0.16f, w * 0.68f, h * 0.28f)
+                lineTo(w * 0.68f, h * 0.44f)
+            }
+            drawPath(shackle, tint, style = Stroke(width = stroke, cap = StrokeCap.Round))
+
+            // Keyhole dot
+            drawCircle(tint, radius = stroke * 1.2f, center = Offset(w * 0.5f, h * 0.64f))
+        }
+    }
+
+    @Composable
+    fun Search(
+        modifier: Modifier = Modifier,
+        size: Dp = 20.dp,
+        tint: Color = StudyOfflineTheme.colors.textSecondary
+    ) {
+        Canvas(modifier = modifier.size(size)) {
+            val stroke = 1.5.dp.toPx()
+            val w = this.size.width
+            val h = this.size.height
+
+            drawCircle(
+                color = tint,
+                radius = w * 0.3f,
+                center = Offset(w * 0.42f, h * 0.42f),
+                style = Stroke(width = stroke)
+            )
+            drawLine(
+                color = tint,
+                start = Offset(w * 0.64f, h * 0.64f),
+                end = Offset(w * 0.86f, h * 0.86f),
+                strokeWidth = stroke,
+                cap = StrokeCap.Round
+            )
+        }
+    }
 }
