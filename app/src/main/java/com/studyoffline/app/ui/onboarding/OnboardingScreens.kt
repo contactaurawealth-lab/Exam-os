@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 
 @Composable
@@ -321,8 +322,14 @@ private fun StudyGoalStep(
     }
 
     if (showDatePicker) {
+        val initialPickerMillis = remember(selectedDate) {
+            selectedDate?.let { millis ->
+                val localDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+                localDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            } ?: System.currentTimeMillis()
+        }
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate ?: System.currentTimeMillis()
+            initialSelectedDateMillis = initialPickerMillis
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -330,13 +337,17 @@ private fun StudyGoalStep(
                 TextButton(
                     onClick = {
                         val chosen = datePickerState.selectedDateMillis
-                        val todayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        if (chosen != null && chosen < todayStart) {
-                            dateError = "Target date must be today or later"
-                        } else {
-                            dateError = null
-                            selectedDate = chosen
-                            onGoalChange(currentName, chosen)
+                        if (chosen != null) {
+                            val chosenDate = Instant.ofEpochMilli(chosen).atZone(ZoneOffset.UTC).toLocalDate()
+                            val today = LocalDate.now()
+                            if (chosenDate.isBefore(today)) {
+                                dateError = "Target date must be today or later"
+                            } else {
+                                dateError = null
+                                val localMidnightMillis = chosenDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                selectedDate = localMidnightMillis
+                                onGoalChange(currentName, localMidnightMillis)
+                            }
                         }
                         showDatePicker = false
                     }

@@ -52,11 +52,7 @@ fun StudyTopBar(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onBackClick
-                        ),
+                        .clickable(onClick = onBackClick),
                     contentAlignment = Alignment.Center
                 ) {
                     LineIcons.ArrowLeft(size = 24.dp, tint = colors.textPrimary)

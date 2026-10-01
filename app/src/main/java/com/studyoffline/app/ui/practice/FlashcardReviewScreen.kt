@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -33,6 +34,18 @@ fun FlashcardReviewScreen(
     val state by viewModel.flashcardState.collectAsState()
     val colors = StudyOfflineTheme.colors
     val typography = StudyOfflineTheme.typography
+
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.background),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = colors.accent)
+        }
+        return
+    }
 
     if (state.cards.isEmpty()) {
         Box(

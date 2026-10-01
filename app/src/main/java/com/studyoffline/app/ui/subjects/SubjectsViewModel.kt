@@ -10,6 +10,7 @@ import com.studyoffline.app.data.repository.StudyRepository
 import com.studyoffline.app.data.repository.SubjectProgress
 import com.studyoffline.app.ui.theme.SubjectTagPalette
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -126,7 +127,7 @@ class SubjectsViewModel @Inject constructor(
                 isNotesSaved = true,
                 isLoading = false
             )
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     fun saveNotes(topicId: Long, notes: String) {

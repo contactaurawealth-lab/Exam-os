@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.studyoffline.app.ui.components.*
@@ -26,6 +27,18 @@ fun QuizSessionScreen(
     val state by viewModel.quizState.collectAsState()
     val colors = StudyOfflineTheme.colors
     val typography = StudyOfflineTheme.typography
+
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.background),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = colors.accent)
+        }
+        return
+    }
 
     if (state.questions.isEmpty()) {
         Box(
